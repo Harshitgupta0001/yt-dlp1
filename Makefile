@@ -10,7 +10,7 @@ tar: yt-dlp.tar.gz
 # intended use: when building a source distribution,
 # make pypi-files && python3 -m build -sn .
 pypi-files: AUTHORS Changelog.md LICENSE README.md README.txt supportedsites \
-            completions yt-dlp.1 pyproject.toml setup.cfg devscripts/* test/*
+            completions yt-dlp.1 pyproject.toml devscripts/* test/*
 
 .PHONY: all clean clean-all clean-test clean-dist clean-cache \
         completions completion-bash completion-fish completion-zsh \
@@ -27,7 +27,7 @@ clean-dist:
 	yt_dlp/extractor/lazy_extractors.py *.spec CONTRIBUTING.md.tmp yt-dlp yt-dlp.exe yt_dlp.egg-info/ AUTHORS
 clean-cache:
 	find . \( \
-		-type d -name .pytest_cache -o -type d -name __pycache__ -o -name "*.pyc" -o -name "*.class" \
+		-type d -name ".*_cache" -o -type d -name __pycache__ -o -name "*.pyc" -o -name "*.class" \
 	\) -prune -exec rm -rf {} \;
 
 completion-bash: completions/bash/yt-dlp
@@ -70,7 +70,8 @@ uninstall:
 	rm -f $(DESTDIR)$(SHAREDIR)/fish/vendor_completions.d/yt-dlp.fish
 
 codetest:
-	flake8 .
+	ruff check .
+	autopep8 --diff .
 
 test:
 	$(PYTHON) -m pytest
@@ -151,13 +152,13 @@ yt-dlp.tar.gz: all
 		--exclude '*.pyo' \
 		--exclude '*~' \
 		--exclude '__pycache__' \
-		--exclude '.pytest_cache' \
+		--exclude '.*_cache' \
 		--exclude '.git' \
 		-- \
 		README.md supportedsites.md Changelog.md LICENSE \
 		CONTRIBUTING.md Collaborators.md CONTRIBUTORS AUTHORS \
 		Makefile yt-dlp.1 README.txt completions .gitignore \
-		setup.cfg yt-dlp yt_dlp pyproject.toml devscripts test
+		yt-dlp yt_dlp pyproject.toml devscripts test
 
 AUTHORS: Changelog.md
 	@if [ -d '.git' ] && command -v git > /dev/null ; then \
