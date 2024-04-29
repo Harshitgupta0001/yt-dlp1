@@ -132,6 +132,15 @@ class CurlCFFIRH(ImpersonateRequestHandler, InstanceStoreMixin):
         extensions.pop('cookiejar', None)
         extensions.pop('timeout', None)
 
+    def send(self, request: Request) -> Response:
+        try:
+            response = super().send(request)
+        except HTTPError as e:
+            e.response.extensions['impersonate'] = self._get_request_target(request)
+            raise
+        response.extensions['impersonate'] = self._get_request_target(request)
+        return response
+
     def _send(self, request: Request):
         max_redirects_exceeded = False
         session: curl_cffi.requests.Session = self._get_instance(
